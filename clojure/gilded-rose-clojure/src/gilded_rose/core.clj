@@ -1,5 +1,13 @@
 (ns gilded-rose.core)
 
+(defn age-item [item]
+  (if (not= (item :name) "Sulfuras, Hand of Ragnaros")
+    (merge item { :sell-in (dec (item :sell-in)) })
+    item))
+
+(defn age-items [coll]
+  (map #(age-item %) coll))
+
 (defn update-quality [items]
   (map
     (fn[item] (cond
@@ -22,11 +30,7 @@
       (or (= "+5 Dexterity Vest" (:name item)) (= "Elixir of the Mongoose" (:name item)))
         (merge item {:quality (max 0 (dec (:quality item)))})
       :else item))
-  (map (fn [item]
-      (if (not= "Sulfuras, Hand of Ragnaros" (:name item))
-        (merge item {:sell-in (dec (:sell-in item))})
-        item))
-  items)))
+  (age-items items)))
 
 (defn item [item-name, sell-in, quality]
   {:name item-name, :sell-in sell-in, :quality quality})
