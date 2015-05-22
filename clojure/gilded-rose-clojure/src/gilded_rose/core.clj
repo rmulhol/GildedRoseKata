@@ -8,6 +8,13 @@
 (defn age-items [coll]
   (map #(age-item %) coll))
 
+(defn adjust-quality [item]
+  (if (<= (item :quality) 0)
+    item
+    (if (> 0 (item :sell-in))
+      (merge item { :quality (dec (dec (item :quality))) })
+      (merge item { :quality (dec (item :quality)) } ))))
+
 (defn update-quality [items]
   (map
     (fn[item] (cond
@@ -21,14 +28,8 @@
             (if (< (:quality item) 50)
               (merge item {:quality (inc (:quality item))})
               item)))
-      (< (:sell-in item) 0)
-        (if (= "Backstage passes to a TAFKAL80ETC concert" (:name item))
-          (merge item {:quality 0})
-          (if (or (= "+5 Dexterity Vest" (:name item)) (= "Elixir of the Mongoose" (:name item)))
-            (merge item {:quality (max 0 (dec (dec (:quality item))))})
-            item))
       (or (= "+5 Dexterity Vest" (:name item)) (= "Elixir of the Mongoose" (:name item)))
-        (merge item {:quality (max 0 (dec (:quality item)))})
+        (adjust-quality item)    
       :else item))
   (age-items items)))
 

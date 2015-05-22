@@ -9,11 +9,7 @@
               { :name "Elixir of the Mongoose", :sell-in 4, :quality 6 }
               { :name "Sulfuras, Hand of Ragnaros", :sell-in 0, :quality 80 }
               { :name "Backstage passes to a TAFKAL80ETC concert", :sell-in 14, :quality 21 }]
-             (core/update-quality [{ :name "+5 Dexterity Vest", :sell-in 10, :quality 20 }
-                              { :name "Aged Brie", :sell-in 2, :quality 0 }
-                              { :name "Elixir of the Mongoose", :sell-in 5, :quality 7 }
-                              { :name "Sulfuras, Hand of Ragnaros", :sell-in 0, :quality 80 }
-                              { :name "Backstage passes to a TAFKAL80ETC concert", :sell-in 15, :quality 20 }]))))
+             (core/update-current-inventory))))
 
 (describe "+5 Dexterity Vest"
   (it "degrades quality -1 when sell-in is above 0"
@@ -95,3 +91,19 @@
               { :name "Sulfuras, Hand of Ragnaros", :sell-in 0, :quality 80 }]
              (core/age-items [{ :name "+5 Dexterity Vest", :sell-in 10, :quality 20 }
                               { :name "Sulfuras, Hand of Ragnaros", :sell-in 0, :quality 80 }]))))
+
+(describe "adjust-quality"
+  (it "decrements quality by 1 for normal item with days remaining"
+    (should= { :name "+5 Dexterity Vest", :sell-in 10, :quality 9 }
+             (core/adjust-quality
+               { :name "+5 Dexterity Vest", :sell-in 10, :quality 10 })))
+  
+  (it "decrements quality by 2 for normal items that are expired"
+    (should= { :name "+5 Dexterity Vest", :sell-in -1, :quality 8 }
+             (core/adjust-quality
+               { :name "+5 Dexterity Vest", :sell-in -1, :quality 10 })))
+  
+  (it "cannot reduce quality of a normal item below 0"
+    (should= { :name "+5 Dexterity Vest", :sell-in -1, :quality 0 }
+             (core/adjust-quality
+               { :name "+5 Dexterity Vest", :sell-in -1, :quality 0 }))))
