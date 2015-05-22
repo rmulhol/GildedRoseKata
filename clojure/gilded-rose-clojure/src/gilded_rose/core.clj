@@ -8,7 +8,24 @@
 (defn age-items [coll]
   (map #(age-item %) coll))
 
-(defn adjust-quality [item]
+(defmulti adjust-quality (fn [item-name] (item-name :name)))
+
+(defmethod adjust-quality "Sulfuras, Hand of Ragnaros" [item]
+  item)
+
+(defmethod adjust-quality "Aged Brie" [item]
+  (if (< (item :quality) 50)
+    (merge item { :quality (inc (item :quality)) })
+    item))
+
+(defmethod adjust-quality "Backstage passes to a TAFKAL80ETC concert" [item]
+  (cond
+    (< (item :sell-in) 0) (merge item { :quality 0 })
+    (< (item :sell-in) 5) (merge item { :quality (min 50 (+ 3 (item :quality))) })
+    (< (item :sell-in) 10) (merge item { :quality (min 50 (inc (inc (item :quality)))) })
+    :else (merge item { :quality (min 50 (inc (item :quality))) })))
+
+(defmethod adjust-quality :default [item]
   (if (<= (item :quality) 0)
     item
     (if (> 0 (item :sell-in))
@@ -16,22 +33,7 @@
       (merge item { :quality (dec (item :quality)) } ))))
 
 (defn update-quality [items]
-  (map
-    (fn[item] (cond
-      (and (< (:sell-in item) 0) (= "Backstage passes to a TAFKAL80ETC concert" (:name item)))
-        (merge item {:quality 0})
-      (or (= (:name item) "Aged Brie") (= (:name item) "Backstage passes to a TAFKAL80ETC concert"))
-        (if (and (= (:name item) "Backstage passes to a TAFKAL80ETC concert") (>= (:sell-in item) 5) (< (:sell-in item) 10))
-          (merge item {:quality (min 50 (inc (inc (:quality item))))})
-          (if (and (= (:name item) "Backstage passes to a TAFKAL80ETC concert") (>= (:sell-in item) 0) (< (:sell-in item) 5))
-            (merge item {:quality (min 50 (inc (inc (inc (:quality item)))))})
-            (if (< (:quality item) 50)
-              (merge item {:quality (inc (:quality item))})
-              item)))
-      (or (= "+5 Dexterity Vest" (:name item)) (= "Elixir of the Mongoose" (:name item)))
-        (adjust-quality item)    
-      :else item))
-  (age-items items)))
+  (map #(adjust-quality %) (age-items items)))
 
 (defn item [item-name, sell-in, quality]
   {:name item-name, :sell-in sell-in, :quality quality})

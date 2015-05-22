@@ -106,4 +106,44 @@
   (it "cannot reduce quality of a normal item below 0"
     (should= { :name "+5 Dexterity Vest", :sell-in -1, :quality 0 }
              (core/adjust-quality
-               { :name "+5 Dexterity Vest", :sell-in -1, :quality 0 }))))
+               { :name "+5 Dexterity Vest", :sell-in -1, :quality 0 })))
+  
+  (it "does not alter quality of Sulfuras"
+    (should= { :name "Sulfuras, Hand of Ragnaros", :sell-in 0, :quality 80 }
+             (core/adjust-quality
+               { :name "Sulfuras, Hand of Ragnaros", :sell-in 0, :quality 80 })))
+  
+  (it "increments the quality of Aged Brie by 1"
+    (should= { :name "Aged Brie", :sell-in 2, :quality 1 }
+             (core/adjust-quality 
+               { :name "Aged Brie", :sell-in 2, :quality 0 })))
+  
+  (it "cannot increase the quality of Aged Brie above 50"
+    (should= { :name "Aged Brie", :sell-in 2, :quality 50 }
+             (core/adjust-quality
+               { :name "Aged Brie", :sell-in 2, :quality 50 })))
+  
+  (it "increments the quality of Backstage passes by 1 when more then 10 days remaining"
+    (should= { :name "Backstage passes to a TAFKAL80ETC concert", :sell-in 15, :quality 6 }
+               (core/adjust-quality 
+                 { :name "Backstage passes to a TAFKAL80ETC concert", :sell-in 15, :quality 5 })))
+
+  (it "increments the quality of Backstage passes by 2 when less than 10 days remaining"
+    (should= { :name "Backstage passes to a TAFKAL80ETC concert", :sell-in 9, :quality 7 }
+               (core/adjust-quality 
+                 { :name "Backstage passes to a TAFKAL80ETC concert", :sell-in 9, :quality 5 })))
+  
+  (it "increments the quality of backstage passes by 3 when less than 5 days remaining"
+    (should= { :name "Backstage passes to a TAFKAL80ETC concert", :sell-in 4, :quality 8 }
+               (core/adjust-quality
+                 { :name "Backstage passes to a TAFKAL80ETC concert", :sell-in 4, :quality 5 })))
+  
+  (it "decrements quality to 0 after concert"
+    (should= { :name "Backstage passes to a TAFKAL80ETC concert", :sell-in -1, :quality 0 }
+             (core/adjust-quality
+               { :name "Backstage passes to a TAFKAL80ETC concert", :sell-in -1, :quality 50 })))
+
+  (it "cannot increase quality greate than 50"
+    (should= { :name "Backstage passes to a TAFKAL80ETC concert", :sell-in 5, :quality 50 }
+             (core/adjust-quality
+               { :name "Backstage passes to a TAFKAL80ETC concert", :sell-in 5, :quality 50 }))))
