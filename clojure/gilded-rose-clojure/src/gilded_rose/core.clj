@@ -1,7 +1,13 @@
 (ns gilded-rose.core)
 
+(def sulfuras "Sulfuras, Hand of Ragnaros")
+(def brie "Aged Brie")
+(def backstage-passes "Backstage passes to a TAFKAL80ETC concert")
+(def max-quality 50)
+(def min-quality 0)
+
 (defn age-item [item]
-  (if (not= (item :name) "Sulfuras, Hand of Ragnaros")
+  (if (not= (item :name) sulfuras)
     (merge item { :sell-in (dec (item :sell-in)) })
     item))
 
@@ -10,25 +16,25 @@
 
 (defmulti adjust-quality (fn [item-name] (item-name :name)))
 
-(defmethod adjust-quality "Sulfuras, Hand of Ragnaros" [item]
+(defmethod adjust-quality sulfuras [item]
   item)
 
-(defmethod adjust-quality "Aged Brie" [item]
-  (if (< (item :quality) 50)
+(defmethod adjust-quality brie [item]
+  (if (< (item :quality) max-quality)
     (merge item { :quality (inc (item :quality)) })
     item))
 
-(defmethod adjust-quality "Backstage passes to a TAFKAL80ETC concert" [item]
+(defmethod adjust-quality backstage-passes [item]
   (cond
     (< (item :sell-in) 0) (merge item { :quality 0 })
-    (< (item :sell-in) 5) (merge item { :quality (min 50 (+ 3 (item :quality))) })
-    (< (item :sell-in) 10) (merge item { :quality (min 50 (inc (inc (item :quality)))) })
-    :else (merge item { :quality (min 50 (inc (item :quality))) })))
+    (< (item :sell-in) 5) (merge item { :quality (min max-quality (+ 3 (item :quality))) })
+    (< (item :sell-in) 10) (merge item { :quality (min max-quality (inc (inc (item :quality)))) })
+    :else (merge item { :quality (min max-quality (inc (item :quality))) })))
 
 (defmethod adjust-quality :default [item]
-  (if (<= (item :quality) 0)
+  (if (<= (item :quality) min-quality)
     item
-    (if (> 0 (item :sell-in))
+    (if (> min-quality (item :sell-in))
       (merge item { :quality (dec (dec (item :quality))) })
       (merge item { :quality (dec (item :quality)) } ))))
 
