@@ -76,6 +76,19 @@
     (should= [{ :name "Backstage passes to a TAFKAL80ETC concert", :sell-in 4, :quality 50 }]
              (core/update-quality [{ :name "Backstage passes to a TAFKAL80ETC concert", :sell-in 5, :quality 50 }]))))
 
+(describe "Conjured"
+  (it "degrades quality -2 when sell-in is above 0"
+    (should= [{ :name "Conjured", :sell-in 4, :quality 8 }]
+             (core/update-quality [{ :name "Conjured", :sell-in 5, :quality 10 }])))
+  
+  (it "degrades in quality -4 when sell-in falls below 0"
+    (should= [{ :name "Conjured", :sell-in -1, :quality 6 }]
+             (core/update-quality [{ :name "Conjured", :sell-in 0, :quality 10 }])))
+
+  (it "cannot fall below 0 in quality"
+    (should= [{ :name "Conjured", :sell-in -1, :quality 0 }]
+             (core/update-quality [{ :name "Conjured", :sell-in 0, :quality 0 }]))))
+
 (describe "age-item"
   (it "decrements the :sell-in time for a normal item"
     (should= { :name "+5 Dexterity Vest", :sell-in 9, :quality 20 }

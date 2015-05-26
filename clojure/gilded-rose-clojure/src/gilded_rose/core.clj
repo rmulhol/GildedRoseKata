@@ -3,6 +3,8 @@
 (def sulfuras "Sulfuras, Hand of Ragnaros")
 (def brie "Aged Brie")
 (def backstage-passes "Backstage passes to a TAFKAL80ETC concert")
+(def conjured "Conjured")
+
 (def max-quality 50)
 (def min-quality 0)
 
@@ -30,6 +32,11 @@
     (< (item :sell-in) 5) (merge item { :quality (min max-quality (+ 3 (item :quality))) })
     (< (item :sell-in) 10) (merge item { :quality (min max-quality (inc (inc (item :quality)))) })
     :else (merge item { :quality (min max-quality (inc (item :quality))) })))
+
+(defmethod adjust-quality conjured [item]
+  (if (>= (item :sell-in) 0)
+    (merge item { :quality (max min-quality (- (item :quality) 2)) })
+    (merge item { :quality (max min-quality (- (item :quality) 4)) })))
 
 (defmethod adjust-quality :default [item]
   (if (<= (item :quality) min-quality)
